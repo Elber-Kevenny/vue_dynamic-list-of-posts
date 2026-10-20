@@ -1,6 +1,8 @@
-<div className="lds-ring">
+<template>
+  <div className="lds-ring">
   <div></div>
   <div></div>
   <div></div>
   <div></div>
 </div>
+</template>
