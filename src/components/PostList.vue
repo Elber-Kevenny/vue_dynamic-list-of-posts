@@ -25,8 +25,8 @@ const globalState = usePostStore();
               </button>
             </div>
             <PostLoader v-if="globalState.state.isLoading"/>
-            <h3 v-if="!globalState.state.isLoading && globalState.state.postsList.length === 0" class="mt-2 has-text-centered">
-              No posts yet.
+            <h3 v-if="(!globalState.state.isLoading && globalState.state.postsList.length === 0) || globalState.state.getPostError" class="mt-2 has-text-centered" :class="{'has-text-danger': !!globalState.state.getPostError}">
+              {{!globalState.state.getPostError ? 'No posts yet' : globalState.state.getPostError}}
             </h3>
             <table
               v-if="globalState.state.postsList.length !== 0"

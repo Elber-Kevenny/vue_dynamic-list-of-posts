@@ -17,6 +17,7 @@ const state = reactive({
   commentEmail: '',
   commentBody: '',
   commentsError: '',
+  getPostError: '',
 });
 
 export const usePostStore = () => {
@@ -48,22 +49,25 @@ export const usePostStore = () => {
     state.showCreatePost = false;
   };
 
-  const posts = async (user) => {
-    
+const posts = async (user) => {
+  if (!user) return;
   try {
-    if (user) {
-      const userId = user.value ? user.value.id : user
-       user.value ? state.isLoading = true : state.isLoading = false
+    const userId = user.value ? user.value.id : user;
+    if (!userId) return;
+
+    state.isLoading = true;
+
     const data = await fun.getPost(userId);
-    state.postsList = data
-  } return
+    
+    state.postsList = data;
+    
   } catch (e) {
-    console.error("Error displaying the list of posts:", e.message)
+    console.error("Error displaying the list of posts:", e.message);
+    state.getPostError = "Error displaying the list of posts";
   } finally {
     state.isLoading = false;
   }
-
-  }
+};
 
   const fecthAddPost = async (postCadastro) => {
     try {
@@ -93,7 +97,7 @@ export const usePostStore = () => {
       const data = await fun.getComment(id)
       state.commentList = data
       }
-      
+      state.commentsError = '';
     } catch (e) {
       console.error("Error displaying comments", e.message)
       state.commentsError = `Error displaying comments: ${e.message}`

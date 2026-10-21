@@ -42,15 +42,11 @@ const postUser = async (userCadastro) => {
 };
 
 const getPost = async (id) => {
-  try {
     const response = await fetch(URL_BASE + "/posts?userId=" + id);
     if (!response.ok) {
       throw new Error(`Fetch error: ${response.status}`);
     }
     return await response.json();
-  } catch (e) {
-    console.error("Internal error:", e.message);
-  }
 };
 
 const addPost = async (postCadastro) => {
