@@ -18,8 +18,8 @@ watch(() => global.state.activePostId,
 </script>
 <template>
   <div class="block">
-    <p v-if="global.state.commentList?.length === 0 && !global.state.isLoadingComment" class="title is-4">
-      No comments yet
+    <p v-if="(global.state.commentList?.length === 0 && !global.state.isLoadingComment) || global.state.commentsError" class="title is-4" :class="{'is-danger': !!global.state.commentsError}"">
+      {{!global.state.commentsError ? 'No comments yet' : global.state.commentsError}}
     </p>
     <PostLoader v-if="global.state.isLoadingComment" />
     <Comment

@@ -13,14 +13,10 @@ const props = defineProps({
 
 const isErrorPostTitle = ref(false);
 
-const commentAuthor = ref("");
 const isErrorAuthor = ref(false);
-const commentEmail = ref("");
 const isErrorEmail = ref(false);
 
-const isErrorPostBody = ref(false);
-
-
+const isErrorpostBody = ref(false);
 
 const globalState = usePostStore()
 const userId = JSON.parse(localStorage.getItem("user"))?.id
@@ -32,27 +28,55 @@ const currentPost = computed(() =>
 );
 
 const postTitle = ref(props.isEditing ? currentPost.value.title : "");
-const postBody = ref(props.isEditing ? currentPost.value.body : "");
+const postBodyLocal = ref(props.isEditing ? currentPost.value.body : "");
+
+// Substitui os ref locais por computadas ligadas à Store
+const commentAuthor = computed({
+  get: () => globalState.state.commentAuthor,
+  set: (val) => { globalState.setCommentAuthor(val); }
+});
+
+const commentEmail = computed({
+  get: () => globalState.state.commentEmail,
+  set: (val) => { globalState.setCommentEmail(val) ; }
+});
+
+const commentBody = computed({
+  get: () => globalState.state.commentBody,
+  set: (val) => { globalState.setCommentBody(val); }
+});
+
+const activeBody = computed({
+  get: () => props.isComment ? commentBody.value : postBodyLocal.value,
+  set: (val) => {
+    if (props.isComment) {
+      commentBody.value = val;
+    } else {
+      postBodyLocal.value = val;
+    }
+  }
+});
 
 watch(
   () => [props.isEditing, currentPost.value],
   ([isEditing, post]) => {
     if (isEditing && post) {
       postTitle.value = post.title || "";
-      postBody.value = post.body || "";
+      postBodyLocal.value = post.body || "";
+    } else if (!isEditing) {
+      postTitle.value = "";
+      postBodyLocal.value = "";
     }
   },
   { immediate: true, deep: true }
 );
-console.log("post addpost", currentPost.value);
 
-console.log("userId para postagem", userId)
 
 
 const handleSubmit = async () => {
   if (props.isEditing) {
     // Lógica de Edição (Valida Título e Corpo)
-    if (postTitle.value && postBody.value) {
+    if (postTitle.value && postBodyLocal.value) {
       const realPostId = currentPost.value.id.value !== undefined 
         ? currentPost.value.id.value 
         : currentPost.value.id
@@ -60,52 +84,50 @@ const handleSubmit = async () => {
         postId: Number(realPostId),
         userId,
         title: postTitle.value,
-        body: postBody.value
+        body: postBodyLocal.value
       });
     } else {
       // CORRIGIDO: Valida os campos corretos da edição
       isErrorPostTitle.value = !postTitle.value;
-      isErrorPostBody.value = !postBody.value;
+      isErrorpostBody.value = !postBodyLocal.value;
     }
   } else if (props.isComment) {
     // Validação e envio de Comentário
-    if (commentAuthor.value && commentEmail.value && postBody.value) {
+    if (commentAuthor.value && commentEmail.value && commentBody.value) {
       await globalState.fetchAddComment({
         postId: globalState.state.activePostId,
         name: commentAuthor.value,
         email: commentEmail.value,
-        body: postBody.value
+        body: commentBody.value
       });
+      globalState.clearCommentForm();
       globalState.handleShowFormComment(false);
       
       // Limpa os erros de comentário após o sucesso (opcional mas recomendado)
       isErrorAuthor.value = false;
       isErrorEmail.value = false;
-      isErrorPostBody.value = false;
+      isErrorpostBody.value = false;
     } else {
       // ADICIONADO: O 'else' que faltava para marcar os erros de comentário se falhar
       isErrorAuthor.value = !commentAuthor.value;
       isErrorEmail.value = !commentEmail.value;
-      isErrorPostBody.value = !postBody.value;
+      isErrorpostBody.value = !commentBody.value;
     }
   } else {
     // Validação e envio de Post Novo
-    if (postTitle.value && postBody.value) {
+    if (postTitle.value && postBodyLocal.value) {
       await globalState.fecthAddPost({
         userId,
         title: postTitle.value,
-        body: postBody.value
+        body: postBodyLocal.value
       });
     } else {
       isErrorPostTitle.value = !postTitle.value;
-      isErrorPostBody.value = !postBody.value;
+      isErrorpostBody.value = !postBodyLocal.value;
     }
   }
 };
 
-// onMounted(() => {
-
-// })
 </script>
 
 <template>
@@ -136,8 +158,8 @@ const handleSubmit = async () => {
 
     <!-- O corpo (textarea) é comum para os dois! -->
     <TextAreaField 
-      v-model="postBody" 
-      v-model:isError="isErrorPostBody" 
+      v-model="activeBody" 
+      v-model:isError="isErrorpostBody" 
     />
 
     <div class="field is-grouped">
@@ -148,7 +170,7 @@ const handleSubmit = async () => {
       </div>
       <div class="control">
         <button 
-          type="reset" 
+          type="button"
           class="button is-link is-light" 
           @click="isEditing ? globalState.handleIsEditing(false) : (globalState.handleShowPost(false), globalState.handleShowFormComment(false))"
         >

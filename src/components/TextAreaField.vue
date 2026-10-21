@@ -10,7 +10,7 @@ const global = usePostStore();
 </script>
 <template>
   <div class="field" data-cy="BodyField">
-  <label class="label" htmlFor="{`comment-${name}`}"> {{ global.state.isEditing ? "Write Post Body" : "Title" }}</label>
+  <label class="label" :for="`comment-body`"> {{ global.state.isEditing ? "Write Post Body" : "Title" }}</label>
   <div class="control">
     <textarea
       id="comment-body"
@@ -19,6 +19,7 @@ const global = usePostStore();
       class="textarea "
       :class="{'is-danger': isError && text.length === 0}"
       v-model="text"
+      @input="isError = false"
       
     ></textarea>
   </div>

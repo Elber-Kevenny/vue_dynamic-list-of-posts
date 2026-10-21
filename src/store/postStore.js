@@ -13,6 +13,10 @@ const state = reactive({
   isLoading: false,
   isLoadingComment: false,
   isEditing: false,
+  commentAuthor: '',
+  commentEmail: '',
+  commentBody: '',
+  commentsError: '',
 });
 
 export const usePostStore = () => {
@@ -54,7 +58,7 @@ export const usePostStore = () => {
     state.postsList = data
   } return
   } catch (e) {
-    console.error("Erro ao exibir a lista de posts", e.message)
+    console.error("Error displaying the list of posts:", e.message)
   } finally {
     state.isLoading = false;
   }
@@ -73,7 +77,7 @@ export const usePostStore = () => {
         await posts(postCadastro.userId)
       }
     } catch (e) {
-      console.error("erro interno", e.message)
+      console.error("internal error", e.message)
     }
   }
 
@@ -82,8 +86,8 @@ export const usePostStore = () => {
   }
 
   const fetchComment = async (id) => {
-    state.commentList = []
     try {
+      state.commentList = []
       if (id) {
       state.isLoadingComment = true
       const data = await fun.getComment(id)
@@ -91,7 +95,8 @@ export const usePostStore = () => {
       }
       
     } catch (e) {
-      console.error("Erro no fetch comment", e.message)
+      console.error("Error displaying comments", e.message)
+      state.commentsError = `Error displaying comments: ${e.message}`
     } finally {
       state.isLoadingComment = false;
 
@@ -109,7 +114,6 @@ export const usePostStore = () => {
   const handleIsEditing = (param) => {
     state.isEditing = param;
     state.isComment = false;
-    console.log("isEditing", state.isEditing)
   }
   const fetchUpdatePost = async (updatedData) => {
   try {
@@ -120,7 +124,7 @@ export const usePostStore = () => {
       state.isEditing = false;
     }
   } catch (e) {
-    console.error("Erro ao atualizar post", e.message);
+    console.error("Error updating post:", e.message);
   }
   };
   const fetchDeletePost = async (postId) => {
@@ -141,24 +145,35 @@ export const usePostStore = () => {
         state.showComments = false;
       }
     } catch (e) {
-      console.error("Erro ao deletar post:", e.message);
+      console.error("Error deleting post:", e.message);
     }
   };
   const fetchDeleteComment = async (commentId) => {
     try {
-      // 1. Chamada para a API (ajuste 'fun.deleteComment' para o nome do seu serviço de api)
+      state.commentList = state.commentList.filter((comment) => comment.id !== commentId);
       await fun.deleteComment(commentId);
 
-      // 2. Remove o comentário da lista localmente para atualizar a UI instantaneamente
-      state.commentList = state.commentList.filter((comment) => comment.id !== commentId);
     } catch (e) {
-      console.error("Erro ao deletar comentário:", e.message);
+      console.error("Error deleting comment:", e.message);
     }
   };
+  const clearCommentForm = () => {
+    state.commentAuthor = "";
+    state.commentEmail = "";
+    state.commentBody = "";
+  };
 
-  console.log("coments", state.commentList)
-  console.log("isComment", state.isComment)
-console.log("create post", state.showCreatePost)
+  const setCommentAuthor = (val) => {
+    state.commentAuthor = val
+  }
+  const setCommentEmail = (val) => {
+    state.commentEmail = val
+  }
+  const setCommentBody = (val) => {
+    state.commentBody = val
+  }
+
+ 
   
   return {
     state: readonly(state),
@@ -173,6 +188,10 @@ console.log("create post", state.showCreatePost)
     handleIsEditing,
     fetchUpdatePost,
     fetchDeletePost,
-    fetchDeleteComment
+    fetchDeleteComment,
+    clearCommentForm,
+    setCommentAuthor,
+    setCommentBody,
+    setCommentEmail
   };
 };

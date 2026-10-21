@@ -1,25 +1,11 @@
 <script setup>
-import { ref } from 'vue';
-import fun from '@/services/api';
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
 
-const users = ref([]);
-const errorMessage = ref('');
-
 const modelo = defineModel()
 
-async function fecthUsers() {
 
-  try {
-    const data = await fun.getUsers()
-    users.value = data
-  } catch (e) {
-    errorMessage.value = 'Não foi possivel carregar os usuarios'
-    console.error(e);
-  }
-}
 
 const handleLogout = () => {
   localStorage.clear()

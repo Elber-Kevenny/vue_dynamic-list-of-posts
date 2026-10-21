@@ -13,7 +13,7 @@ const modelo = defineModel()
 
 <template>
   <div class="field">
-  <label class="label" htmlFor="user-name"> Your Name </label>
+  <label class="label" :for="`user-name`"> Your Name </label>
 
   <div class="control has-icons-left">
     <input
@@ -23,7 +23,7 @@ const modelo = defineModel()
       class="input"
       placeholder="Enter your name"
       required
-      minlength="{4}"
+      :minlength="4"
       v-model="modelo"
     />
 
@@ -32,7 +32,7 @@ const modelo = defineModel()
     </span>
   </div>
 
-  <p class="help is-danger" v-if="erroMessage">{{ erroMessage }}</p>
+  <p class="help is-danger" v-if="erroMessages">{{ erroMessages }}</p>
 </div>
 
 </template>

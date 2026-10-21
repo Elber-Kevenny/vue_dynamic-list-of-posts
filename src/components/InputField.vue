@@ -29,6 +29,7 @@ defineProps({
         class="input"
         :class="{'is-danger': isError && (!model || model.length === 0)}"
         v-model="model"
+        @input="isError = false"
       />
       
       <!-- Ícone muda para envelope se for email, ou usuário se for nome/título -->

@@ -21,7 +21,6 @@ const pageTitle = computed(() => {
   }
   return "Post Details"; // Título padrão caso nenhum estado bata
 });
-console.log("postCombody", currentPost.value);
 </script>
 
 <template>
@@ -42,7 +41,7 @@ console.log("postCombody", currentPost.value);
         </button>
         <button  type="button"
           class="button is-white is-clickable"
-          title="delete post" @click="global.fetchDeletePost(currentPost.id)">
+          title="delete post" @click="global.fetchDeletePost(currentPost?.id)">
           
           <span class="icon is-right has-text-danger is-clickable ml-3">
             <i class="fas fa-trash"></i>
